@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.services.llm import generate_response
-
+from app.services.secret import SYSTEM_CONTEXT
 from app.schemas.document import DocumentRequest, DocumentResponse
 from app.services.document import summarize_document
 
@@ -31,3 +31,15 @@ def summarize(request: DocumentRequest):
     return DocumentResponse(response=response)
 
 
+@app.post("/secret/chat", response_model=ChatResponse)
+def secret_chat(request: ChatRequest):
+    prompt = f"""
+{SYSTEM_CONTEXT}
+
+User request:
+{request.prompt}
+"""
+
+    response = generate_response(prompt)
+
+    return ChatResponse(response=response)
